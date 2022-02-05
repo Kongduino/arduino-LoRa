@@ -21,7 +21,7 @@
 #define LORA_DEFAULT_DIO0_PIN      LORA_IRQ
 #else
 #define LORA_DEFAULT_SPI           SPI
-#define LORA_DEFAULT_SPI_FREQUENCY 8E6 
+#define LORA_DEFAULT_SPI_FREQUENCY 8E6
 #define LORA_DEFAULT_SS_PIN        10
 #define LORA_DEFAULT_RESET_PIN     9
 #define LORA_DEFAULT_DIO0_PIN      2
@@ -33,24 +33,18 @@
 class LoRaClass : public Stream {
 public:
   LoRaClass();
-
   int begin(long frequency);
   void end();
-
   int beginPacket(int implicitHeader = false);
   int endPacket(bool async = false);
-
   int parsePacket(int size = 0);
   int packetRssi();
   float packetSnr();
   long packetFrequencyError();
-
   int rssi();
-
   // from Print
   virtual size_t write(uint8_t byte);
   virtual size_t write(const uint8_t *buffer, size_t size);
-
   // from Stream
   virtual int available();
   virtual int read();
@@ -60,12 +54,10 @@ public:
 #ifndef ARDUINO_SAMD_MKRWAN1300
   void onReceive(void(*callback)(int));
   void onTxDone(void(*callback)());
-
   void receive(int size = 0);
 #endif
   void idle();
   void sleep();
-
   void setTxPower(int level, int outputPin = PA_OUTPUT_PA_BOOST_PIN);
   void setFrequency(long frequency);
   void setSpreadingFactor(int sf);
@@ -77,40 +69,40 @@ public:
   void disableCrc();
   void enableInvertIQ();
   void disableInvertIQ();
-  
   void setOCP(uint8_t mA); // Over Current Protection control
-  
   void setGain(uint8_t gain); // Set LNA gain
-
   // deprecated
   void crc() { enableCrc(); }
   void noCrc() { disableCrc(); }
-
   byte random();
-
   void setPins(int ss = LORA_DEFAULT_SS_PIN, int reset = LORA_DEFAULT_RESET_PIN, int dio0 = LORA_DEFAULT_DIO0_PIN);
   void setSPI(SPIClass& spi);
   void setSPIFrequency(uint32_t frequency);
-
   void dumpRegisters(Stream& out);
+  // Additions by Kongduino
+  void setupLoRandom();
+  void resetLoRa();
+  uint8_t getLoRandomByte();
+  void fillRandomMultiple(unsigned char *, size_t, uint8_t);
+  void fillRandom(unsigned char *, size_t);
+  void fillRandom(unsigned char *, size_t, uint8_t);
+  void fillRandom(unsigned char *, size_t, uint8_t, uint8_t);
 
 private:
   void explicitHeaderMode();
   void implicitHeaderMode();
-
   void handleDio0Rise();
   bool isTransmitting();
-
   int getSpreadingFactor();
   long getSignalBandwidth();
-
   void setLdoFlag();
-
   uint8_t readRegister(uint8_t address);
   void writeRegister(uint8_t address, uint8_t value);
   uint8_t singleTransfer(uint8_t address, uint8_t value);
-
   static void onDio0Rise();
+  // Additions by Kongduino
+  uint8_t modemconf1, modemconf2, randomIndex = 0xFF;
+  unsigned char randomBuff[256];
 
 private:
   SPISettings _spiSettings;
